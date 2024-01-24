@@ -1,50 +1,45 @@
 from django.shortcuts import redirect, render
 from .preprocessing import *
-
+import pandas as pd
 
 from datetime import datetime, timedelta
+from .main_dashboad_processor import MainDashboard
+
+
+main_dashboard_processor= MainDashboard()
+
 
 def main_dashboard(request):
-    # Load the DataFrame from CSV
-    df = pd.read_csv('media/df/saga_instace_file.csv')
+    context = main_dashboard_processor.get_process_execution_stats()  # Common context
+    context['status_options'] = main_dashboard_processor.get_status_options()
 
-    # Process data to calculate required statistics
-    total_executions = len(df)
-    print(df.status.value_counts().index,flush=True)
-    completed_successfully = df[df['status'] == 'COMPLETED']
-    completed_with_error = df[df['status'] == 'FAILED']
-    being_completed = df[df['status'] == 'PENDING' | df['status'] == 'IN_PROGRESS']  # Assuming 'PENDING'  status also means being completed
-    compensated = df[df['status'] == 'COMPENSATED']
-    # Calculating numbers and percentages
-    num_completed_successfully = len(completed_successfully)
-    perc_completed_successfully = (num_completed_successfully / total_executions) * 100
-    num_completed_with_error = len(completed_with_error)
-    perc_completed_with_error = (num_completed_with_error / total_executions) * 100
-    num_being_completed = len(being_completed)
-    perc_being_completed = (num_being_completed / total_executions) * 100
-    num_compensated = len(compensated)  # Number of compensated executions
-    perc_compensated = (num_compensated / total_executions) * 100  # Percentage of compensated executions
+    if request.method == 'POST':
+        try:
+            # Parsing selected values from the dropdown
+            selected_statuses = request.POST.getlist('statuses')
 
-    # Preparing data for processes requiring review and recent executions
-    review_processes = df[df['status'] == 'REVIEW']  # Assuming 'REVIEW' status requires review
-    df['createdAt_$date'] = pd.to_datetime(df['createdAt_$date']).dt.tz_localize(None)
-    one_hour_ago = datetime.now() - timedelta(hours=1)
-    recent_executions = df[df['createdAt_$date'] > one_hour_ago]
+            # Parsing values from the date-time pickers
+            start_time_str = request.POST.get('start_time')
+            end_time_str = request.POST.get('end_time')
 
-    # Passing data to the template
-    context = {
-        'total_executions': total_executions,
-        'num_completed_successfully': num_completed_successfully,
-        'perc_completed_successfully': perc_completed_successfully,
-        'num_completed_with_error': num_completed_with_error,
-        'perc_completed_with_error': perc_completed_with_error,
-        'num_being_completed': num_being_completed,
-        'perc_being_completed': perc_being_completed,
-        'num_compensated': num_compensated,  # Add to context
-        'perc_compensated': perc_compensated,  # Add to context
-        'review_processes': review_processes.to_html(),  # Convert DataFrame to HTML table
-        'recent_executions': recent_executions.to_html(),  # Convert DataFrame to HTML table
-    }
+            # Convert time strings to datetime objects, handling invalid formats
+            start_time = datetime.strptime(start_time_str, '%Y-%m-%dT%H:%M') if start_time_str else None
+            end_time = datetime.strptime(end_time_str, '%Y-%m-%dT%H:%M') if end_time_str else None
+
+            # Filter data and convert to HTML table
+            processes = main_dashboard_processor.filter_dataframe(status=selected_statuses, time_beg=start_time, time_end=end_time)
+            processes = processes.to_html() if processes is not None else 'No data available'
+
+            context['processes'] = processes
+
+        except ValueError as e:
+            # Handle specific error (e.g., date parsing error)
+            context['error'] = f"Invalid input: {e}"
+        except Exception as e:
+            # Handle any other unforeseen errors
+            context['error'] = f"An error occurred: {e}"
+
+    # Render the template with context
     return render(request, 'dash_board/main_dashboard.html', context)
 
 
@@ -57,6 +52,38 @@ from django.core.files.storage import FileSystemStorage
 from .models import VivebFile
 from .file_processing import save_files, load_files
 
+
+
+
+
+from .saga import parse_saga_file
+from .saga_instance import parse_saga_instance_file
+from .saga_log import parse_saga_instance_log_file
+def save_to_df(uploaded_files):
+    try:
+        for file_type, file in uploaded_files.items():
+            if file is not None:
+                if file_type == 'saga':
+                    # Assuming parse_saga_file is your custom function for 'saga' file type
+                    print("in saga",type(file),flush=True)
+                    file.seek(0)
+                    parse_saga_file(file.read())
+                elif file_type == 'saga_instance':
+                    # Using the parse_saga_instance_file function
+                    file.seek(0)
+                    parse_saga_instance_file(file.read())
+                elif file_type == 'saga_log':
+                    # Handle saga_log file or skip if not implemented
+                    file.seek(0)
+                    parse_saga_instance_log_file(file.read())
+                else:
+                    print(f"Unknown file type: {file_type}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+
 def file_upload(request):
     if request.method == 'POST':
         uploaded_files = {
@@ -64,7 +91,11 @@ def file_upload(request):
             'saga_instance': request.FILES.get('saga_instance_file'),
             'saga_log': request.FILES.get('saga_log_file')
         }
+        #lets save the files to DB
         save_files(uploaded_files)
+        #also we should convert them to a dataframe
+        save_to_df(uploaded_files)
+        
         return redirect('file_upload')  # Redirect to a success page or the same page
 
     saga_files = load_files()

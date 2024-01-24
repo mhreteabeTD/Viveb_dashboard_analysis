@@ -8,7 +8,8 @@ def save_files(files):
     :return: None
     """
     for file_type, file_obj in files.items():
-        if file_type in dict(VivebFile.FILE_TYPES):
+        if file_obj==None:continue
+        if file_type in dict(VivebFile.FILE_TYPES) :
             viveb_file = VivebFile(file=file_obj, file_type=file_type)
             try:
                 viveb_file.save()

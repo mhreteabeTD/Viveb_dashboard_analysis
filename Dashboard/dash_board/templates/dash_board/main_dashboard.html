@@ -6,10 +6,6 @@
     <!-- Displaying the statistics -->
     <h2>Execution Statistics</h2>
     <table class="stats-table">
-        <!-- <tr>
-            <th>Total Executions</th>
-            <td>{{ total_executions }}</td>
-        </tr> -->
         <tr>
             <th>Completed Successfully</th>
             <td>{{ num_completed_successfully }} ({{ perc_completed_successfully }}%)</td>
@@ -22,19 +18,35 @@
             <th>Being Completed</th>
             <td>{{ num_being_completed }} ({{ perc_being_completed }}%)</td>
         </tr>
-        <!-- <tr>
-            <th>Componsated Processes</th>
-            <td>{{ num_compensated }} ({{ perc_compensated }}%)</td>
-        </tr> -->
     </table>
 
-    <!-- Processes Requiring Review -->
-    <h2>Processes Requiring Review</h2>
-    <div>{{ review_processes|safe }}</div>
+    <!-- Combined Processes Section -->
+    <h2>Processes Overview</h2>
+    <div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Dropdown for status selection -->
+            <label for="status-select">Select Status:</label>
+            <select id="status-select" name="statuses" multiple>
+                {% for status in status_options %}
+                <option value="{{ status }}">{{ status }}</option>
+                {% endfor %}
+            </select>
 
-    <!-- Recent Executions -->
-    <h2>Recent Executions in the Last Hour</h2>
-    <div>{{ recent_executions|safe }}</div>
+            <!-- Time pickers for start and end date -->
+            <label for="start-time">Start Time:</label>
+            <input type="datetime-local" id="start-time" name="start_time">
+
+            <label for="end-time">End Time:</label>
+            <input type="datetime-local" id="end-time" name="end_time">
+
+            <input type="submit" value="Filter">
+        </form>
+
+        <!-- Combined section content -->
+        <div>{{ processes|safe }}</div>
+    </div>
+
 </div>
 
 <style>
@@ -58,3 +70,8 @@
     }
 </style>
 {% endblock %}
+
+
+
+
+

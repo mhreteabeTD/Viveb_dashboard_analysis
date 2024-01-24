@@ -18,7 +18,7 @@
                 <!-- Saga File -->
                 <tr>
                     <td>Saga File</td>
-                    <td>{% if saga_files.saga %}File Name: {{ saga_files.saga}}{% else %}No Saga File{% endif %}</td>
+                    <td>{% if saga_files.saga %}File Name: <span style="color: greenyellow;">{{ saga_files.saga}}</span>{% else %}No Saga File{% endif %}</td>
                     <td>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
@@ -34,7 +34,7 @@
                 <!-- Saga Instance File -->
                 <tr>
                     <td>Saga Instance File</td>
-                    <td>{% if saga_files.saga_instance %}File Name: {{ saga_files.saga_instances}}{% else %}No Saga Instance File{% endif %}</td>
+                    <td>{% if saga_files.saga_instance %}File Name: <span style="color: greenyellow;">{{ saga_files.saga_instance}}</span>{% else %}No Saga Instance File{% endif %}</td>
                     <td>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
@@ -50,7 +50,7 @@
                 <!-- Saga Log File -->
                 <tr>
                     <td>Saga Log File</td>
-                    <td>{% if saga_files.saga_log %}File Name: {{ saga_files.saga_log}}{% else %}No Saga Log File{% endif %}</td>
+                    <td>{% if saga_files.saga_log %}File Name: <span style="color: greenyellow;">{{ saga_files.saga_log}}</span>{% else %}No Saga Log File{% endif %}</td>
                     <td>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
