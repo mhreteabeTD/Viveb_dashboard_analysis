@@ -1,0 +1,60 @@
+{% extends 'dash_board/base.html' %}
+
+{% block content %}
+<div class="dashboard-content">
+    
+    <!-- Displaying the statistics -->
+    <h2>Execution Statistics</h2>
+    <table class="stats-table">
+        <!-- <tr>
+            <th>Total Executions</th>
+            <td>{{ total_executions }}</td>
+        </tr> -->
+        <tr>
+            <th>Completed Successfully</th>
+            <td>{{ num_completed_successfully }} ({{ perc_completed_successfully }}%)</td>
+        </tr>
+        <tr>
+            <th>Completed with Error</th>
+            <td>{{ num_completed_with_error }} ({{ perc_completed_with_error }}%)</td>
+        </tr>
+        <tr>
+            <th>Being Completed</th>
+            <td>{{ num_being_completed }} ({{ perc_being_completed }}%)</td>
+        </tr>
+        <!-- <tr>
+            <th>Componsated Processes</th>
+            <td>{{ num_compensated }} ({{ perc_compensated }}%)</td>
+        </tr> -->
+    </table>
+
+    <!-- Processes Requiring Review -->
+    <h2>Processes Requiring Review</h2>
+    <div>{{ review_processes|safe }}</div>
+
+    <!-- Recent Executions -->
+    <h2>Recent Executions in the Last Hour</h2>
+    <div>{{ recent_executions|safe }}</div>
+</div>
+
+<style>
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: Arial, sans-serif;
+    }
+    .stats-table, .stats-table th, .stats-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .stats-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #333;
+    }
+    .stats-table td {
+        color: #666;
+    }
+</style>
+{% endblock %}
