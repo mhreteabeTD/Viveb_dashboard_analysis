@@ -10,7 +10,9 @@ from . import views
 urlpatterns = [
     path('dashboard/', views.main_dashboard, name='dashboard'),
     path('',views.home_page,name="homepage"),
-     path('upload/', views.file_upload, name='file_upload')
+     path('upload/', views.file_upload, name='file_upload'),
+     path('process_catalogue/',views.processes_catalogue,name="process_catalogue"),
+     path('process/<process_id>',views.process_detail,name="process_detail")
 ]
 
 

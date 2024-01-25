@@ -9,11 +9,17 @@ from .saga_log import load_saga_instance_log_df,parse_saga_instance_log_file
 class MainDashboard():
     def __init__(self):
         #lets load our dataframes
-        self.saga_df = load_saga_df()
-        self.saga_instance_df , self.saga_step_df = load_saga_instance_dfs()
-        self.saga_instance_log_df = load_saga_instance_log_df()
-        self.context  = {}
-    
+        try:
+            self.saga_df = load_saga_df()
+            self.saga_instance_df , self.saga_step_df = load_saga_instance_dfs()
+            self.saga_instance_log_df = load_saga_instance_log_df()
+            self.context  = {}
+            # print(self.saga_df.columns,flush=True)
+            # print(self.saga_instance_df.columns,flush=True)
+            # print(self.saga_step_df.columns,flush=True)
+            # print(self.saga_instance_log_df.columns,flush=True)
+        except Exception as e:
+            print(e,flush=True)  
     def get_status_options(self):
         return self.saga_instance_df.status.unique().tolist()
     
@@ -52,7 +58,7 @@ class MainDashboard():
         return stats
 
     def filter_dataframe(self, status, time_beg, time_end):
-        df = self.saga_instance_df
+        df = self.saga_instance_df.copy()
         try:
             # Ensure df is a pandas DataFrame
             if not isinstance(df, pd.DataFrame):
@@ -63,24 +69,24 @@ class MainDashboard():
                 if not isinstance(status, list):
                     raise ValueError("Status must be a list.")
                 df = df[df['status'].isin(status)]
-        
-            # Convert time strings to datetime objects for comparison
+    
+            # Convert time strings to timezone-aware datetime objects for comparison
             if 'createdAt_$date' in df.columns and 'updatedAt_$date' in df.columns:
-                df['createdAt_$date'] = pd.to_datetime(df['createdAt_$date'], errors='coerce')
-                df['updatedAt_$date'] = pd.to_datetime(df['updatedAt_$date'], errors='coerce')
+                df['createdAt_$date'] = pd.to_datetime(df['createdAt_$date'], utc=True, errors='coerce')
+                df['updatedAt_$date'] = pd.to_datetime(df['updatedAt_$date'], utc=True, errors='coerce')
             else:
                 raise ValueError("Required date columns are not in DataFrame.")
 
             # Filter by time_beg if it's provided
             if time_beg:
-                time_beg = pd.to_datetime(time_beg, errors='coerce')
+                time_beg = pd.to_datetime(time_beg, utc=True, errors='coerce')
                 if pd.isna(time_beg):
                     raise ValueError("Invalid format for time_beg.")
                 df = df[df['createdAt_$date'] >= time_beg]
 
             # Filter by time_end if it's provided
             if time_end:
-                time_end = pd.to_datetime(time_end, errors='coerce')
+                time_end = pd.to_datetime(time_end, utc=True, errors='coerce')
                 if pd.isna(time_end):
                     raise ValueError("Invalid format for time_end.")
                 df = df[df['updatedAt_$date'] <= time_end]
@@ -90,5 +96,3 @@ class MainDashboard():
         except Exception as e:
             print(f"Error occurred: {e}")
             return None
-
-    
