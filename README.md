@@ -4,11 +4,12 @@
 This Dockerized project creates a comprehensive dashboard for monitoring and analyzing API usage within Viveb's server environments. It aims to provide actionable insights into API performance trends, enhancing server management and operational reliability.
 
 **Screenshots**
-![image](https://github.com/user-attachments/assets/4aef014f-502d-4570-9c07-2c10e9d2f176)
 
-![image](https://github.com/user-attachments/assets/d8d2ba73-104b-4244-b06d-dc22200b17a3)
+![image](https://github.com/user-attachments/assets/782f4e10-7959-4b09-9be7-60cef40421a7)
 
-![image](https://github.com/user-attachments/assets/ce6312ab-7bed-4c8b-b4e7-646b53bd64e8)
+![image](https://github.com/user-attachments/assets/36e2aa4c-7545-459b-814b-3e985b444ac9)
+
+![image](https://github.com/user-attachments/assets/4ca17637-0626-4b44-a567-e24551618605)
 
 
 
